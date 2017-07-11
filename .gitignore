@@ -1,0 +1,45 @@
+gradle.properties
+
+# Ignore generated build descriptors
+build.properties
+
+#java specific
+*.class
+.gradle/*
+
+build/
+target/
+out/
+
+# IDEA project files
+*.iml
+*.ipr
+*.iws
+*.ids
+.idea/
+
+# Eclipse project files
+.settings/
+.classpath
+.project
+
+# Ctags stuff
+tags
+
+## generic files to ignore
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
+*.bak
+
+## classes in WEB-INF
+classes*
+
+WebContent/WEB-INF/lib/*
+
+*.bz2
+*.pyc
+*.deb
+*.pyc
