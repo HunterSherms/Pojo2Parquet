@@ -5,7 +5,7 @@ ext {
     project_version = '0.0.1'
     project_jdk = '1.8'
     project_pom = {
-        name 'pojo2parquet'
+        name 'Pojo2Parquet'
         packaging 'jar'
         description "A simple utility for converting pojo to parquet files and back out."
         url 'https://github.com/HunterSherms'
@@ -112,6 +112,8 @@ uploadArchives {
             snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
                 authentication(userName: ossrhUsername, password: ossrhPassword)
             }
+
+            pom.project project_pom
         }
     }
 }
