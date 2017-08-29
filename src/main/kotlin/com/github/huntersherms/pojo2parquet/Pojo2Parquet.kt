@@ -27,7 +27,7 @@ import java.io.ByteArrayOutputStream
 class Pojo2Parquet<T>(private val clazz: Class<T>) {
 
     /**
-     * Converts a list of Pojos to a temp parquet file and returns it.
+     * Converts a Collection of POJOs to a temp parquet file and returns it.
      *
      * Uses reflection so that providing an Avro schema is not necessary.
      */
@@ -51,7 +51,7 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
     }
 
     /**
-     * Converts a parquet file to a list of Pojos.
+     * Converts a parquet file to a list of POJOs.
      *
      * Uses reflection so that providing an Avro schema is not necessary.
      */
@@ -83,7 +83,7 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
         val file = File.createTempFile("parquet", ".gzip")
 
         /*
-         * Constructs our Avro Mapper. For more infor on the added configuration see:
+         * Constructs our Avro Mapper. For more info on the added configuration see:
          * https://github.com/FasterXML/jackson-dataformats-binary/issues/15
          */
         val mapper = AvroMapper(AvroFactory().enable(AvroGenerator.Feature.AVRO_FILE_OUTPUT))
@@ -123,10 +123,11 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
 
         val avroReader = mapper.reader(AvroSchema(schema)).forType(clazz)
 
-        val pojos = mutableListOf<T>()
+        val datumWriter = GenericDatumWriter<GenericRecord>(schema)
 
-		val datumWriter = GenericDatumWriter<GenericRecord>(schema)
         val encoderFactory = EncoderFactory.get()
+
+        val pojos = mutableListOf<T>()
 
         AvroParquetReader.builder<GenericRecord>(Path(file.toURI()))
                 .disableCompatibility()
