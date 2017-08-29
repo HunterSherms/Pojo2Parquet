@@ -27,11 +27,11 @@ import java.io.ByteArrayOutputStream
 class Pojo2Parquet<T>(private val clazz: Class<T>) {
 
     /**
-     * Converts a list of Pojos to a temp parquet file and returns it
+     * Converts a list of Pojos to a temp parquet file and returns it.
      *
-     * Uses reflection so that providing an Avro schema is not necessary
+     * Uses reflection so that providing an Avro schema is not necessary.
      */
-    fun pojos2Parquet(pojos: List<T>): File {
+    fun pojos2Parquet(pojos: Collection<T>): File {
 
         assert(pojos.isNotEmpty())
 
@@ -44,15 +44,16 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
                 .withCompressionCodec(GZIP)
                 .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
                 .build().use({ writer ->
-            pojos.forEach { writer.write(it) }
-        })
+                    pojos.forEach { pojo -> writer.write(pojo) }
+                })
+
         return file
     }
 
     /**
-     * Converts a parquet file to a list of Pojos
+     * Converts a parquet file to a list of Pojos.
      *
-     * Uses reflection so that providing an Avro schema is not necessary
+     * Uses reflection so that providing an Avro schema is not necessary.
      */
     fun parquet2Pojos(file: File): List<T> {
 
@@ -60,13 +61,14 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
         AvroParquetReader.builder<T>(Path(file.toURI()))
                 .withDataModel(ReflectData(clazz.classLoader))
                 .disableCompatibility() // always use this (since this is a new project)
-                .build().use({
-                    var pojo = it.read()
+                .build().use({ reader ->
+                    var pojo = reader.read()
                     while (null != pojo) {
                         pojos.add(pojo)
-                        pojo = it.read()
+                        pojo = reader.read()
                     }
-        })
+                })
+
         return pojos
     }
 
@@ -74,13 +76,13 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
      * Use in place of pojos2Parquet if your POJOs are Jackson annotated and you want the derived parquet column names
      * to follow your annotations rather than your POJO property names.
      */
-    fun jacksonAnnotatedPojos2Parquet(pojos: List<T>): File {
+    fun jacksonAnnotatedPojos2Parquet(pojos: Collection<T>): File {
 
         assert(pojos.isNotEmpty())
 
         val file = File.createTempFile("parquet", ".gzip")
 
-        /**
+        /*
          * Constructs our Avro Mapper. For more infor on the added configuration see:
          * https://github.com/FasterXML/jackson-dataformats-binary/issues/15
          */
@@ -96,20 +98,21 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
                 .withCompressionCodec(GZIP)
                 .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
                 .build().use({ writer ->
-                    pojos.forEach {
+                    pojos.forEach { pojo ->
                         DataFileReader.openReader(
-                                SeekableByteArrayInput(avroWriter.writeValueAsBytes(it)),
-                                GenericDatumReader<GenericRecord>(schema)).forEach {
-                            writer.write(it)
-                        }
+                                SeekableByteArrayInput(avroWriter.writeValueAsBytes(pojo)),
+                                GenericDatumReader<GenericRecord>(schema)).forEach { record ->
+                                    writer.write(record)
+                                }
                     }
                 })
+
         return file
     }
 
     /**
      * Use in place of parquet2Pojos if your POJOs are Jackson annotated and you want Jackson to manage the mapping
-     * to your POJOs
+     * to your POJOs.
      */
     fun parquet2JacksonAnnotatedPojos(file: File): List<T> {
 
@@ -128,23 +131,24 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
         AvroParquetReader.builder<GenericRecord>(Path(file.toURI()))
                 .disableCompatibility()
                 .withDataModel(GenericData.get())
-                .build().use({
-            var pojo = it.read()
-            var bos: ByteArrayOutputStream
-            var encoder: BinaryEncoder? = null
-            while (null != pojo) {
-                bos = ByteArrayOutputStream()
-                encoder = encoderFactory.directBinaryEncoder(bos, encoder)
-                datumWriter.write(pojo, encoder)
-                pojos.add(avroReader.readValue(bos.toByteArray()))
-                pojo = it.read()
-            }
-        })
+                .build().use({ reader ->
+                    var pojo = reader.read()
+                    var bos: ByteArrayOutputStream
+                    var encoder: BinaryEncoder? = null
+                    while (null != pojo) {
+                        bos = ByteArrayOutputStream()
+                        encoder = encoderFactory.directBinaryEncoder(bos, encoder)
+                        datumWriter.write(pojo, encoder)
+                        pojos.add(avroReader.readValue(bos.toByteArray()))
+                        pojo = reader.read()
+                    }
+                })
+
         return pojos
     }
 
     /**
-     * Use Jackson to derive the Avro Schema based on Jackson annotations if provided
+     * Use Jackson to derive the Avro Schema based on Jackson annotations if provided.
      */
     private fun getAvroSchema(mapper: AvroMapper): Schema {
         val gen = AvroSchemaGenerator()
