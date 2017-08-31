@@ -74,9 +74,10 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
 
     /**
      * Use in place of pojos2Parquet if your POJOs are Jackson annotated and you want the derived parquet column names
-     * to follow your annotations rather than your POJO property names.
+     * to follow your annotations rather than your POJO property names, or optionally provide your own AvroMapper with
+     * your own configuration in place.
      */
-    fun jacksonAnnotatedPojos2Parquet(pojos: Collection<T>): File {
+    fun jacksonAnnotatedPojos2Parquet(pojos: Collection<T>, mapper: AvroMapper = getAvroMapper()): File {
 
         assert(pojos.isNotEmpty())
 
@@ -114,7 +115,7 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
      * Use in place of parquet2Pojos if your POJOs are Jackson annotated and you want Jackson to manage the mapping
      * to your POJOs.
      */
-    fun parquet2JacksonAnnotatedPojos(file: File): List<T> {
+    fun parquet2JacksonAnnotatedPojos(file: File, mapper: AvroMapper = getAvroMapper()): List<T> {
 
         val mapper = AvroMapper()
 
@@ -146,6 +147,17 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
                 })
 
         return pojos
+    }
+
+    /**
+     * Get an AvroMapper meeting the requirements of these Jackson methods. Useful if you want to set some default properties on
+     * your mapper such as defaulting to snake case.
+     *
+     * mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+     */
+    fun getAvroMapper(): AvroMapper {
+
+        return AvroMapper(AvroFactory().enable(AvroGenerator.Feature.AVRO_FILE_OUTPUT))
     }
 
     /**

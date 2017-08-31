@@ -2,7 +2,7 @@
 //Settings
 ext {
     project_group = 'com.github.huntersherms'
-    project_version = '0.0.2'
+    project_version = '0.0.3'
     project_jdk = '1.8'
     project_pom = {
         name 'Pojo2Parquet'
@@ -39,7 +39,7 @@ version = project_version
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 buildscript {
-    ext.kotlin_version = '1.1.4-2'
+    ext.kotlin_version = '1.1.4-3'
 
     repositories {
         mavenCentral()
