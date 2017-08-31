@@ -1,10 +1,14 @@
 package com.github.huntersherms.pojo2parquet
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.dataformat.avro.AvroGenerator
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class Pojo2ParquetTest {
+
+    private val readerWriter = Pojo2Parquet(CrewMember::class.java)
 
     private val firefly = mutableListOf(
             CrewMember("Malcolm", "Reynolds", 49),
@@ -14,8 +18,6 @@ class Pojo2ParquetTest {
 
     @Test
     fun pojos2ParquetTestIAndOut() {
-
-        val readerWriter = Pojo2Parquet(CrewMember::class.java)
 
         val file = readerWriter.pojos2Parquet(firefly)
         file.deleteOnExit()
@@ -28,14 +30,18 @@ class Pojo2ParquetTest {
     @Test
     fun jacksonAnnotatedPojo2ParquetTestIAndOut() {
 
-        val readerWriter = Pojo2Parquet(CrewMember::class.java)
-
         val file = readerWriter.jacksonAnnotatedPojos2Parquet(firefly)
         file.deleteOnExit()
 
         val pojos = readerWriter.parquet2JacksonAnnotatedPojos(file)
 
         assertEquals(firefly, pojos)
+    }
+
+    @Test
+    fun getAvroMapperForcesFileInput() {
+
+        assertTrue(readerWriter.getAvroMapper().factory.isEnabled(AvroGenerator.Feature.AVRO_FILE_OUTPUT))
     }
 }
 
