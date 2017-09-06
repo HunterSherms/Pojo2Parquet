@@ -2,7 +2,7 @@
 //Settings
 ext {
     project_group = 'com.github.huntersherms'
-    project_version = '0.0.3'
+    project_version = '0.0.4'
     project_jdk = '1.8'
     project_pom = {
         name 'Pojo2Parquet'
