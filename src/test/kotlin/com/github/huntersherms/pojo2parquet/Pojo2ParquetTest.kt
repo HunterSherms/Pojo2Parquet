@@ -11,9 +11,9 @@ class Pojo2ParquetTest {
     private val readerWriter = Pojo2Parquet(CrewMember::class.java)
 
     private val firefly = mutableListOf(
-            CrewMember("Malcolm", "Reynolds", 49),
-            CrewMember("Zoe", "Washburne", 33),
-            CrewMember("Kaylee", "Frye", null)
+            CrewMember("Malcolm", "Reynolds", 49, 1234567890),
+            CrewMember("Zoe", "Washburne", 33, 2345678901),
+            CrewMember("Kaylee", "Frye", null, 3456789012)
     )
 
     @Test
@@ -47,4 +47,5 @@ class Pojo2ParquetTest {
 
 data class CrewMember(@get:JsonProperty("first_name") val firstName: String = "",
                       @get:JsonProperty("last_name") val lastName: String = "",
-                      @get:JsonProperty("age") val age: Int? = null)
+                      @get:JsonProperty("age") val age: Int? = null,
+                      @get:JsonProperty("id") val id: Long? = null)

@@ -83,12 +83,6 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
 
         val file = File.createTempFile("parquet", ".gzip")
 
-        /*
-         * Constructs our Avro Mapper. For more info on the added configuration see:
-         * https://github.com/FasterXML/jackson-dataformats-binary/issues/15
-         */
-        val mapper = AvroMapper(AvroFactory().enable(AvroGenerator.Feature.AVRO_FILE_OUTPUT))
-
         //Derive our schema using Jackson
         val schema = getAvroSchema(mapper)
 
@@ -116,8 +110,6 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
      * to your POJOs.
      */
     fun parquet2JacksonAnnotatedPojos(file: File, mapper: AvroMapper = getAvroMapper()): List<T> {
-
-        val mapper = AvroMapper()
 
         //Derive our schema using Jackson
         val schema = getAvroSchema(mapper)
