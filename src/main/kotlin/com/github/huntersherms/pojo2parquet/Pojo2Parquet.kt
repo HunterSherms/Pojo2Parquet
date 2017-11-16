@@ -147,10 +147,7 @@ class Pojo2Parquet<T>(private val clazz: Class<T>) {
      *
      * mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
      */
-    fun getAvroMapper(): AvroMapper {
-
-        return AvroMapper(AvroFactory().enable(AvroGenerator.Feature.AVRO_FILE_OUTPUT))
-    }
+    fun getAvroMapper(): AvroMapper = AvroMapper(AvroFactory().enable(AvroGenerator.Feature.AVRO_FILE_OUTPUT))
 
     /**
      * Use Jackson to derive the Avro Schema based on Jackson annotations if provided.
